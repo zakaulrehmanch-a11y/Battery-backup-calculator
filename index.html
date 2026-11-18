@@ -13,23 +13,24 @@
 *{box-sizing:border-box}
 body{margin:0;background:#f2f6f4;color:#18332e;font-family:Arial,sans-serif}
 main{max-width:560px;margin:auto;padding:16px}
-header{background:#102a27;color:white;padding:23px;border-radius:18px}
+header{background:#102a27;color:white;padding:24px;border-radius:18px}
 header h1{font-size:23px;margin:0}
-header p{color:#c6d8d1;margin:8px 0 0;font-size:13px}
+header p{color:#c6d8d1;font-size:13px;margin:8px 0 0}
 h2{font-size:21px;margin:24px 0 14px}
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.tile{background:white;border:1px solid #dce8e2;border-radius:14px;padding:17px 12px;text-align:left;color:#18332e;font-size:15px;font-weight:bold;min-height:105px}
+.tile{background:white;border:1px solid #dce8e2;border-radius:14px;padding:16px 12px;text-align:left;color:#18332e;font-size:15px;font-weight:bold;min-height:105px}
 .tile span{display:block;font-size:25px;margin-bottom:10px}
 .tile.active{border:2px solid #16845e;background:#eaf6ef}
 .panel{background:white;padding:19px;border-radius:16px;margin-top:16px;box-shadow:0 3px 12px #102a2710}
 .panel h3{margin:0 0 16px}
 label{display:block;font-size:13px;font-weight:bold;margin:13px 0 6px}
-input,select{width:100%;padding:13px;border:1px solid #cbd9d2;border-radius:9px;font-size:16px;background:white}
+input,select{width:100%;padding:13px;border:1px solid #cbd9d2;border-radius:9px;font-size:16px;background:white;color:#18332e}
 button.calculate{width:100%;padding:14px;margin-top:18px;background:#147b55;color:white;border:0;border-radius:10px;font-size:16px;font-weight:bold}
-.result{display:none;margin-top:16px;background:#eaf6ef;border-radius:11px;padding:15px;line-height:1.7}
-.result strong{font-size:21px;color:#126443}
-.small{font-size:12px;color:#64746e;line-height:1.5}
+.result{display:none;margin-top:16px;background:#eaf6ef;border-radius:11px;padding:15px;line-height:1.8}
+.result strong{font-size:19px;color:#126443}
+.small{font-size:12px;color:#64746e;line-height:1.6}
 footer{text-align:center;color:#75847e;font-size:12px;padding:25px}
+[hidden]{display:none!important}
 </style>
 </head>
 
@@ -61,29 +62,35 @@ footer{text-align:center;color:#75847e;font-size:12px;padding:25px}
 </button>
 </div>
 
-<section class="panel" id="watt">
-<h3>Watt Calculator</h3>
+<!-- WATT CALCULATOR -->
 
-<label>Calculation type</label>
-<select id="wmode">
+<section class="panel" id="watt">
+<h3>DC Watt Calculator</h3>
+
+<label>What do you want to calculate?</label>
+<select id="wmode" onchange="updateWattFields()">
 <option value="w">Calculate Watts</option>
 <option value="a">Calculate Amps</option>
 <option value="v">Calculate Volts</option>
 </select>
 
-<label>Volts (V)</label>
-<input id="wv" type="number" min="0" placeholder="e.g. 220">
+<div id="wfirst">
+<label id="wlabel1">Voltage (V)</label>
+<input id="winput1" type="number" min="0" step="any" placeholder="Enter voltage">
+</div>
 
-<label>Amps (A)</label>
-<input id="wa" type="number" min="0" placeholder="e.g. 5">
-
-<label>Watts (W)</label>
-<input id="ww" type="number" min="0" placeholder="e.g. 1100">
+<div id="wsecond">
+<label id="wlabel2">Current (A)</label>
+<input id="winput2" type="number" min="0" step="any" placeholder="Enter current">
+</div>
 
 <button class="calculate" onclick="calculateWatt()">Calculate</button>
 <div class="result" id="wr"></div>
-<p class="small">Basic formula: Watts = Volts × Amps. For AC loads with power factor, Watts = Volts × Amps × PF.</p>
+
+<p class="small">DC formula: Watts = Volts × Amps. Enter only the two requested values.</p>
 </section>
+
+<!-- ELECTRICITY CONSUMPTION -->
 
 <section class="panel" id="units" hidden>
 <h3>Electricity Consumption</h3>
@@ -91,40 +98,46 @@ footer{text-align:center;color:#75847e;font-size:12px;padding:25px}
 <label>Appliance power (Watts)</label>
 <input id="uw" type="number" min="0" placeholder="e.g. 1000">
 
-<label>Quantity</label>
+<label>Number of appliances</label>
 <input id="uq" type="number" min="1" value="1">
 
 <label>Hours used per day</label>
-<input id="uh" type="number" min="0" placeholder="e.g. 5">
+<input id="uh" type="number" min="0" max="24" step="any" placeholder="e.g. 5">
 
 <label>Number of days</label>
 <input id="ud" type="number" min="1" value="30">
 
 <button class="calculate" onclick="calculateUnits()">Calculate Units</button>
 <div class="result" id="ur"></div>
+<p class="small">1 electricity unit = 1 kWh.</p>
 </section>
+
+<!-- INVERTER CALCULATOR -->
 
 <section class="panel" id="inverter" hidden>
 <h3>Inverter Capacity Calculator</h3>
 
 <label>Total running load (Watts)</label>
-<input id="il" type="number" min="0" placeholder="e.g. 1500">
-
-<label>Extra capacity margin (%)</label>
-<input id="im" type="number" min="0" value="25">
+<input id="il" type="number" min="0" placeholder="e.g. 2000">
 
 <label>Power factor</label>
 <input id="ip" type="number" min="0.1" max="1" step="0.01" value="0.8">
 
-<button class="calculate" onclick="calculateInverter()">Calculate Inverter</button>
+<label>Extra capacity margin (%)</label>
+<input id="im" type="number" min="0" value="25">
+
+<button class="calculate" onclick="calculateInverter()">Calculate Inverter Capacity</button>
 <div class="result" id="ir"></div>
-<p class="small">This estimates inverter VA capacity. Motor starting surge and manufacturer specifications must also be considered.</p>
+
+<p class="small">Formula: Recommended VA = Load Watts × (1 + Margin) ÷ Power Factor. Use the manufacturer's rated power factor where available. Check motor starting surge separately.</p>
 </section>
+
+<!-- BATTERY BACKUP -->
 
 <section class="panel" id="backup" hidden>
 <h3>Battery Backup Calculator</h3>
 
-<label>Battery system voltage (V)</label>
+<label>Battery system voltage</label>
 <select id="bv">
 <option value="12">12V</option>
 <option value="24">24V</option>
@@ -135,7 +148,7 @@ footer{text-align:center;color:#75847e;font-size:12px;padding:25px}
 <label>Battery capacity (Ah)</label>
 <input id="bah" type="number" min="0" placeholder="e.g. 200">
 
-<label>Load (Watts)</label>
+<label>Total load (Watts)</label>
 <input id="bl" type="number" min="0" placeholder="e.g. 500">
 
 <label>Usable battery capacity (%)</label>
@@ -146,12 +159,16 @@ footer{text-align:center;color:#75847e;font-size:12px;padding:25px}
 
 <button class="calculate" onclick="calculateBackup()">Calculate Backup</button>
 <div class="result" id="br"></div>
+
+<p class="small">Estimated backup depends on battery condition, temperature, discharge rate and actual inverter efficiency.</p>
 </section>
+
+<!-- BATTERY BANK -->
 
 <section class="panel" id="bank" hidden>
 <h3>Battery Bank Calculator</h3>
 
-<label>Required system voltage (V)</label>
+<label>Required system voltage</label>
 <select id="sv">
 <option value="12">12V</option>
 <option value="24">24V</option>
@@ -159,7 +176,7 @@ footer{text-align:center;color:#75847e;font-size:12px;padding:25px}
 <option value="96">96V</option>
 </select>
 
-<label>Individual battery voltage (V)</label>
+<label>Individual battery voltage</label>
 <select id="bv2">
 <option value="12">12V</option>
 <option value="6">6V</option>
@@ -174,10 +191,14 @@ footer{text-align:center;color:#75847e;font-size:12px;padding:25px}
 
 <button class="calculate" onclick="calculateBank()">Calculate Battery Bank</button>
 <div class="result" id="bankr"></div>
-<p class="small">Series connections increase voltage. Parallel strings increase capacity. Use identical, compatible batteries.</p>
+
+<p class="small">Series connections increase voltage. Parallel strings increase Ah capacity. Use identical, compatible batteries and check the inverter's supported configuration.</p>
 </section>
 
-<footer>Punjab Power Solutions<br>Electrical Calculator Suite</footer>
+<footer>
+Punjab Power Solutions<br>
+Electrical Calculator Suite
+</footer>
 
 </main>
 
@@ -198,33 +219,76 @@ function getNumber(id){
 return Number(document.getElementById(id).value);
 }
 
-function showResult(id,message){
-var element=document.getElementById(id);
-element.innerHTML=message;
-element.style.display='block';
-}
-
 function positive(values){
 return values.every(function(value){
 return Number.isFinite(value)&&value>0;
 });
 }
 
+function showResult(id,message){
+var element=document.getElementById(id);
+element.innerHTML=message;
+element.style.display='block';
+}
+
+function updateWattFields(){
+var mode=document.getElementById('wmode').value;
+var label1=document.getElementById('wlabel1');
+var label2=document.getElementById('wlabel2');
+var input1=document.getElementById('winput1');
+var input2=document.getElementById('winput2');
+
+input1.value='';
+input2.value='';
+document.getElementById('wr').style.display='none';
+
+if(mode==='w'){
+label1.textContent='Voltage (V)';
+label2.textContent='Current (A)';
+input1.placeholder='e.g. 12';
+input2.placeholder='e.g. 10';
+}else if(mode==='a'){
+label1.textContent='Power (W)';
+label2.textContent='Voltage (V)';
+input1.placeholder='e.g. 120';
+input2.placeholder='e.g. 12';
+}else{
+label1.textContent='Power (W)';
+label2.textContent='Current (A)';
+input1.placeholder='e.g. 120';
+input2.placeholder='e.g. 10';
+}
+}
+
 function calculateWatt(){
 var mode=document.getElementById('wmode').value;
-var volts=getNumber('wv');
-var amps=getNumber('wa');
-var watts=getNumber('ww');
+var x=getNumber('winput1');
+var y=getNumber('winput2');
 
-if(mode==='w'&&positive([volts,amps])){
-showResult('wr','Calculated Power<br><strong>'+(volts*amps).toFixed(2)+' W</strong>');
-}else if(mode==='a'&&positive([volts,watts])){
-showResult('wr','Calculated Current<br><strong>'+(watts/volts).toFixed(2)+' A</strong>');
-}else if(mode==='v'&&positive([amps,watts])){
-showResult('wr','Calculated Voltage<br><strong>'+(watts/amps).toFixed(2)+' V</strong>');
-}else{
-showResult('wr','Please enter valid positive values in the two required fields.');
+if(!positive([x,y])){
+showResult('wr','Please enter two valid positive values.');
+return;
 }
+
+var answer;
+var unit;
+var description;
+
+if(mode==='w'){
+answer=x*y;
+unit='W';
+description='Calculated DC Power';
+}else if(mode==='a'){
+answer=x/y;
+unit='A';
+description='Calculated DC Current';
+}else{
+answer=x/y;
+unit='V';
+description='Calculated DC Voltage';
+}
+
+showResult('wr',description+'<br><strong>'+answer.toFixed(2)+' '+unit+'</strong>');
 }
 
 function calculateUnits(){
@@ -233,35 +297,37 @@ var quantity=getNumber('uq');
 var hours=getNumber('uh');
 var days=getNumber('ud');
 
-if(!positive([watts,quantity,hours,days])){
-showResult('ur','Please enter valid positive values.');
+if(!positive([watts,quantity,hours,days])||hours>24){
+showResult('ur','Enter valid positive values. Daily hours cannot exceed 24.');
 return;
 }
 
 var daily=watts*quantity*hours/1000;
-var monthly=daily*days;
+var total=daily*days;
 
 showResult('ur',
 'Daily consumption: <strong>'+daily.toFixed(2)+' kWh</strong><br>'+
-'Total consumption: <strong>'+monthly.toFixed(2)+' units (kWh)</strong>'
+'Total consumption: <strong>'+total.toFixed(2)+' units</strong>'
 );
 }
 
 function calculateInverter(){
 var load=getNumber('il');
+var pf=getNumber('ip');
 var margin=getNumber('im');
-var factor=getNumber('ip');
 
-if(!positive([load,factor])||margin<0||factor>1){
-showResult('ir','Enter a valid load, margin and power factor between 0.1 and 1.');
+if(!positive([load,pf])||pf>1||margin<0||!Number.isFinite(margin)){
+showResult('ir','Enter a valid load, power factor (0.1–1) and non-negative margin.');
 return;
 }
 
-var capacity=load*(1+margin/100)/factor;
+var requiredVA=load*(1+margin/100)/pf;
 
 showResult('ir',
-'Estimated inverter rating: <strong>'+capacity.toFixed(0)+' VA</strong><br>'+
-'Approximate capacity: <strong>'+(capacity/1000).toFixed(2)+' kVA</strong>'
+'Running load: <strong>'+load.toFixed(0)+' W</strong><br>'+
+'Power factor: <strong>'+pf.toFixed(2)+'</strong><br>'+
+'Capacity with margin: <strong>'+requiredVA.toFixed(0)+' VA</strong><br>'+
+'Recommended approximate size: <strong>'+(requiredVA/1000).toFixed(2)+' kVA</strong>'
 );
 }
 
@@ -277,7 +343,9 @@ showResult('br','Enter valid positive values. Percentages must not exceed 100.')
 return;
 }
 
-var hours=voltage*ah*(usable/100)*(efficiency/100)/load;
+var energy=voltage*ah*(usable/100);
+var usableEnergy=energy*(efficiency/100);
+var hours=usableEnergy/load;
 var wholeHours=Math.floor(hours);
 var minutes=Math.round((hours-wholeHours)*60);
 
@@ -287,8 +355,10 @@ minutes=0;
 }
 
 showResult('br',
-'Estimated backup time: <strong>'+hours.toFixed(2)+' hours</strong><br>'+
-'Approximately '+wholeHours+' hours and '+minutes+' minutes'
+'Nominal battery energy: <strong>'+(voltage*ah/1000).toFixed(2)+' kWh</strong><br>'+
+'Usable AC energy estimate: <strong>'+(usableEnergy/1000).toFixed(2)+' kWh</strong><br>'+
+'Estimated backup: <strong>'+hours.toFixed(2)+' hours</strong><br>'+
+'Approximately '+wholeHours+' hours '+minutes+' minutes'
 );
 }
 
@@ -313,12 +383,14 @@ return;
 var parallel=Math.ceil(requiredCapacity/batteryCapacity);
 var total=series*parallel;
 var actualCapacity=parallel*batteryCapacity;
+var energy=systemVoltage*actualCapacity/1000;
 
 showResult('bankr',
-'Batteries in series: <strong>'+series+'</strong><br>'+
+'Batteries in series per string: <strong>'+series+'</strong><br>'+
 'Parallel strings: <strong>'+parallel+'</strong><br>'+
 'Total batteries required: <strong>'+total+'</strong><br>'+
-'Actual bank capacity: <strong>'+actualCapacity+' Ah</strong>'
+'Actual bank capacity: <strong>'+actualCapacity+' Ah</strong><br>'+
+'Total nominal energy: <strong>'+energy.toFixed(2)+' kWh</strong>'
 );
 }
 
